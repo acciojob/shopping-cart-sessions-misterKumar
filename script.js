@@ -8,10 +8,15 @@ const products = [
   { id: 4, name: "Product 4", price: 40 },
   { id: 5, name: "Product 5", price: 50 },
 ];
-
+ 
+// Load cart data from session storage
+let cart = JSON.parse(sessionStorage.getItem("cart")) || [];
+ 
 // DOM elements
 const productList = document.getElementById("product-list");
-
+const cartList = document.getElementById("cart-list");
+const clearCartBtn = document.getElementById("clear-cart-btn");
+ 
 // Render product list
 function renderProducts() {
   products.forEach((product) => {
@@ -20,19 +25,69 @@ function renderProducts() {
     productList.appendChild(li);
   });
 }
-
+ 
 // Render cart list
-function renderCart() {}
-
+function renderCart() {
+  // Clear cart list
+  cartList.innerHTML = "";
+ 
+  // Render items in cart
+  cart.forEach((item) => {
+    const li = document.createElement("li");
+    li.innerHTML = `${item.name} - $${item.price} <button class="remove-from-cart-btn" data-id="${item.id}">Remove</button>`;
+    cartList.appendChild(li);
+  });
+ 
+  // Update session storage
+  sessionStorage.setItem("cart", JSON.stringify(cart));
+}
+ 
 // Add item to cart
-function addToCart(productId) {}
-
+function addToCart(productId) {
+  const product = products.find((product) => product.id === productId);
+ 
+  // Add item to cart
+  cart.push({ id: product.id, name: product.name, price: product.price });
+ 
+  // Render cart
+  renderCart();
+}
+ 
 // Remove item from cart
-function removeFromCart(productId) {}
-
+function removeFromCart(productId) {
+  // Remove item from cart
+  cart = cart.filter((item) => item.id !== productId);
+ 
+  // Render cart
+  renderCart();
+}
+ 
 // Clear cart
-function clearCart() {}
-
+function clearCart() {
+  // Clear cart data
+  cart = [];
+ 
+  // Render cart
+  renderCart();
+}
+ 
+// Event listeners
+productList.addEventListener("click", (e) => {
+  if (e.target.classList.contains("add-to-cart-btn")) {
+    addToCart(parseInt(e.target.dataset.id));
+  }
+});
+ 
+cartList.addEventListener("click", (e) => {
+  if (e.target.classList.contains("remove-from-cart-btn")) {
+    removeFromCart(parseInt(e.target.dataset.id));
+  }
+});
+ 
+clearCartBtn.addEventListener("click", () => {
+  clearCart();
+});
+ 
 // Initial render
 renderProducts();
 renderCart();
